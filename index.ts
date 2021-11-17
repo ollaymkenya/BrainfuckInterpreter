@@ -10,31 +10,35 @@ class Brainfuck {
     Brainfuck.input = input;
   }
 
-  static interpret(): string {
+  static interpret():void {
     this.setInputArray(this.getInput().split(''));
     this.checkLoops(this.getInputArray());
-    let { currentItem, index } = this.readLine(this.getPointer());
-    for (let i = this.getPointer(); i < this.getInputArray().length; i++) {
-      this.parser(currentItem, index);
-      if (
-        !(
-          currentItem == '<' ||
-          currentItem == '>' ||
-          currentItem == '[' ||
-          currentItem == ']'
-        )
-      ) {
-        this.setPointer(this.getPointer() + 1);
+    for (let i = 0; i < this.getInputArray().length; i++) {
+      let currentItem = this.getInputArray()[i];
+      if (currentItem == '[') {
+        if (this.getMemory()[this.getPointer()] == 0) {
+          for (let j = 0; j < this.openAndClose.length; j++) {
+            if (this.openAndClose[j]['['] == i) {
+              i = this.openAndClose[j][']'];
+              currentItem = this.getInputArray()[i];
+            }
+          }
+        }
       }
-    }
-    return this.getOutput();
-  }
 
-  static readLine(index: number) {
-    return {
-      currentItem: this.getInputArray()[index],
-      index,
-    };
+      if (currentItem == ']') {
+        if (this.getMemory()[this.getPointer()] != 0) {
+          for (let j = 0; j < this.openAndClose.length; j++) {
+            if (this.openAndClose[j][']'] == i) {
+              i = this.openAndClose[j]['['];
+              currentItem = this.getInputArray()[i];
+            }
+          }
+        }
+      }
+
+      this.parser(currentItem, i);
+    }
   }
 
   static checkLoops(arr) {
@@ -94,7 +98,6 @@ class Brainfuck {
   }
 
   static parser(currentItem: string, index: number): void {
-    console.log(`The currentItem: ${currentItem} index: ${index}`);
     if (currentItem == '<') {
       this.setPointer(this.getPointer() - 1);
     }
@@ -120,34 +123,10 @@ class Brainfuck {
     if (currentItem == '.') {
       this.setOutput(this.getMemory()[this.getPointer()]);
     }
-
-    if (currentItem == '[') {
-      if (this.getMemory()[this.getPointer()] == 0) {
-        for (let i = 0; i < this.openAndClose.length; i++) {
-          if (this.openAndClose[i]['['] == index) {
-            this.setPointer(this.openAndClose[i][']'] + 1);
-          }
-        }
-      } else {
-        this.setPointer(this.getPointer() + 1);
-      }
-    }
-
-    if (currentItem == ']') {
-      if (this.getMemory()[this.getPointer()] != 0) {
-        for (let i = 0; i < this.openAndClose.length; i++) {
-          if (this.openAndClose[i][']'] == index) {
-            this.setPointer(this.openAndClose[i]['['] + 1);
-          }
-        }
-      } else {
-        this.setPointer(this.getPointer() + 1);
-      }
-    }
   }
 }
 
 let bf = new Brainfuck(
   '++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.'
 );
-console.log(Brainfuck.interpret());
+let x = Brainfuck.interpret();
